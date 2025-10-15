@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ book.title }} - Administration{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📖 Détails du livre</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if book.image %}
+                                <img src="{{ asset('images/books/' ~ book.image) }}" 
+                                     alt="{{ book.title }}" 
+                                     class="img-fluid rounded"
+                                     onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <span class="text-muted">Aucune image</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h4>{{ book.title }}</h4>
+                            <p class="text-muted">Par {{ book.author }}</p>
+                            
+                            <div class="mb-3">
+                                <h6>Description :</h6>
+                                <p>{{ book.description }}</p>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="text-primary">{{ book.price|number_format(2, ',', ' ') }} $ CAD</h5>
+                                            <small class="text-muted">Prix</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="text-{{ book.stock > 5 ? 'success' : (book.stock > 0 ? 'warning' : 'danger') }}">
+                                                {{ book.stock }}
+                                            </h5>
+                                            <small class="text-muted">Stock disponible</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <span class="badge bg-{{ book.stock > 5 ? 'success' : (book.stock > 0 ? 'warning' : 'danger') }} fs-6">
+                                    {{ book.status }}
+                                </span>
+                            </div>
+
+                            <div class="mt-4">
+                                <small class="text-muted">
+                                    <strong>Créé le :</strong> {{ book.createdAt|date('d/m/Y H:i') }}<br>
+                                    <strong>Modifié le :</strong> {{ book.updatedAt|date('d/m/Y H:i') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_book_index') }}" class="btn btn-outline-secondary">
+                            ← Retour à la liste
+                        </a>
+                        <div>
+                            <a href="{{ path('admin_book_edit', {'id': book.id}) }}" class="btn btn-primary">
+                                ✏️ Modifier
+                            </a>
+                            <form method="post" action="{{ path('admin_book_delete', {'id': book.id}) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ book.id) }}">
+                                <button type="submit" class="btn btn-danger">
+                                    🗑️ Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

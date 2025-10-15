@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">📚 Livres Informatiques</h1>
+        
+        <!-- Barre de recherche -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="get" action="{{ path('app_home') }}" class="d-flex">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Rechercher un livre..." value="{{ search }}">
+                    <button type="submit" class="btn btn-primary">🔍 Rechercher</button>
+                </form>
+            </div>
+        </div>
+
+        {% if search %}
+            <div class="alert alert-info">
+                Résultats de recherche pour : <strong>"{{ search }}"</strong>
+                <a href="{{ path('app_home') }}" class="btn btn-sm btn-outline-primary ms-2">Voir tous les livres</a>
+            </div>
+        {% endif %}
+
+        <!-- Grille des livres -->
+        <div class="row">
+            {% if books|length > 0 %}
+                {% for book in books %}
+                    <div class="col-md-4 col-lg-3 mb-4">
+                        <div class="card h-100">
+                            <img src="{{ asset('images/books/' ~ book.image) }}" 
+                                 class="card-img-top book-image" 
+                                 alt="{{ book.title }}"
+                                 onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ book.title }}</h5>
+                                <p class="card-text text-muted">Par {{ book.author }}</p>
+                                <p class="card-text">{{ book.description|length > 100 ? book.description|slice(0, 100) ~ '...' : book.description }}</p>
+                                
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="h5 text-primary mb-0">{{ book.price|number_format(2, ',', ' ') }} $ CAD</span>
+                                        <span class="badge bg-{{ book.stock > 5 ? 'success' : (book.stock > 0 ? 'warning' : 'danger') }}">
+                                            {{ book.status }}
+                                        </span>
+                                    </div>
+                                    
+                                                                                    {% if book.isAvailable %}
+                                                    <div class="d-grid gap-2">
+                                                        {% if app.user %}
+                                                            <form method="post" action="{{ path('app_cart_add', {'id': book.id}) }}">
+                                                                <button type="submit" class="btn btn-primary">
+                                                                    🛒 Ajouter au panier
+                                                                </button>
+                                                            </form>
+                                                        {% else %}
+                                                            <form method="post" action="{{ path('app_guest_cart_add', {'id': book.id}) }}">
+                                                                <button type="submit" class="btn btn-outline-primary">
+                                                                    🛒 Ajouter au panier invité
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                        <a href="{{ path('app_direct_purchase', {'id': book.id}) }}" class="btn btn-success">
+                                                            💳 Acheter maintenant
+                                                        </a>
+                                                    </div>
+                                                {% else %}
+                                                    <button class="btn btn-secondary w-100" disabled>
+                                                        ❌ Indisponible
+                                                    </button>
+                                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning text-center">
+                        <h4>Aucun livre trouvé</h4>
+                        <p>Essayez de modifier vos critères de recherche.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Statistiques -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3>📊 Statistiques</h3>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ books|length }}</h5>
+                                <p class="card-text">Livres disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ books|filter(b => b.stock <= 5 and b.stock > 0)|length }}</h5>
+                                <p class="card-text">Stock limité</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ books|filter(b => b.stock == 0)|length }}</h5>
+                                <p class="card-text">En rupture</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ books|reduce((sum, b) => sum + b.stock, 0) }}</h5>
+                                <p class="card-text">Total en stock</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

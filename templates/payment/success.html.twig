@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement réussi - Commande #{{ order.orderNumber }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3>✅ Paiement réussi !</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Merci pour votre commande !</h4>
+                    <p class="text-muted">Votre paiement a été traité avec succès.</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>📋 Détails de la commande</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Numéro de commande :</strong></td>
+                                <td>{{ order.orderNumber }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date :</strong></td>
+                                <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Statut :</strong></td>
+                                <td><span class="badge bg-success">Payée</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Transaction PayPal :</strong></td>
+                                <td>{{ order.paypalTransactionId }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>💰 Résumé financier</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Sous-total :</td>
+                                <td class="text-end">{{ order.subtotal|number_format(2, ',', ' ') }} $</td>
+                            </tr>
+                            <tr>
+                                <td>Taxes (14.975%) :</td>
+                                <td class="text-end">{{ order.tax|number_format(2, ',', ' ') }} $</td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Total :</strong></td>
+                                <td class="text-end"><strong>{{ order.total|number_format(2, ',', ' ') }} $</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-12">
+                        <h5>📚 Livres commandés</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Livre</th>
+                                        <th>Quantité</th>
+                                        <th>Prix unitaire</th>
+                                        <th>Sous-total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for orderItem in order.orderItems %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ asset('images/books/' ~ orderItem.book.image) }}" 
+                                                     alt="{{ orderItem.book.title }}" 
+                                                     class="me-3" 
+                                                     style="width: 50px; height: 70px; object-fit: cover;"
+                                                     onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                                                <div>
+                                                    <strong>{{ orderItem.book.title }}</strong><br>
+                                                    <small class="text-muted">Par {{ orderItem.book.author }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ orderItem.quantity }}</td>
+                                        <td>{{ orderItem.price|number_format(2, ',', ' ') }} $</td>
+                                        <td>{{ orderItem.subtotal|number_format(2, ',', ' ') }} $</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <h6>📧 Confirmation par email</h6>
+                    <p class="mb-0">Un email de confirmation a été envoyé à votre adresse email. Vous recevrez également un email de suivi lorsque votre commande sera expédiée.</p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="{{ path('app_user_orders') }}" class="btn btn-primary me-2">
+                        📋 Voir mes commandes
+                    </a>
+                    <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                        🛍️ Continuer les achats
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

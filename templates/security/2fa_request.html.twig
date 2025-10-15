@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Authentification à deux facteurs - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h3>🔐 Authentification à deux facteurs</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6>📧 Connexion sécurisée</h6>
+                    <p class="mb-0">Entrez votre adresse email pour recevoir un code de vérification par email.</p>
+                </div>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Adresse email</label>
+                        <input type="email" id="email" name="email" class="form-control" required autofocus>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            📧 Envoyer le code de vérification
+                        </button>
+                    </div>
+                </form>
+
+                <hr>
+
+                <div class="text-center">
+                    <p>Préférez-vous vous connecter avec un mot de passe ?</p>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-secondary">
+                        🔑 Connexion classique
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

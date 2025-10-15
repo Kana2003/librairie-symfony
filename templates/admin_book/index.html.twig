@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Livres - Administration{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>📚 Gestion des Livres</h1>
+            <a href="{{ path('admin_book_new') }}" class="btn btn-success">
+                ➕ Ajouter un livre
+            </a>
+        </div>
+
+        <!-- Barre de recherche -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="get" action="{{ path('admin_book_index') }}" class="d-flex">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Rechercher un livre..." value="{{ search }}">
+                    <button type="submit" class="btn btn-primary">🔍 Rechercher</button>
+                </form>
+            </div>
+        </div>
+
+        {% if search %}
+            <div class="alert alert-info">
+                Résultats de recherche pour : <strong>"{{ search }}"</strong>
+                <a href="{{ path('admin_book_index') }}" class="btn btn-sm btn-outline-primary ms-2">Voir tous les livres</a>
+            </div>
+        {% endif %}
+
+        <!-- Tableau des livres -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Titre</th>
+                                <th>Auteur</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ asset('images/books/' ~ book.image) }}" 
+                                             alt="{{ book.title }}" 
+                                             style="width: 50px; height: 50px; object-fit: cover;"
+                                             onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                                    </td>
+                                    <td>{{ book.title }}</td>
+                                    <td>{{ book.author }}</td>
+                                    <td>{{ book.price|number_format(2, ',', ' ') }} $ CAD</td>
+                                    <td>
+                                        <span class="badge bg-{{ book.stock > 5 ? 'success' : (book.stock > 0 ? 'warning' : 'danger') }}">
+                                            {{ book.stock }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ book.stock > 5 ? 'success' : (book.stock > 0 ? 'warning' : 'danger') }}">
+                                            {{ book.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('admin_book_show', {'id': book.id}) }}" class="btn btn-sm btn-info">👁️ Voir</a>
+                                            <a href="{{ path('admin_book_edit', {'id': book.id}) }}" class="btn btn-sm btn-warning">✏️ Modifier</a>
+                                            <form method="post" action="{{ path('admin_book_delete', {'id': book.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?')">
+                                                <button type="submit" class="btn btn-sm btn-danger">🗑️ Supprimer</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center">Aucun livre trouvé</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ books|length }}</h5>
+                        <p class="card-text">Total des livres</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ books|filter(b => b.stock > 5)|length }}</h5>
+                        <p class="card-text">En stock</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ books|filter(b => b.stock <= 5 and b.stock > 0)|length }}</h5>
+                        <p class="card-text">Stock limité</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ books|filter(b => b.stock == 0)|length }}</h5>
+                        <p class="card-text">En rupture</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

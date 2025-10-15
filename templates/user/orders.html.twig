@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Commandes - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>📋 Mes Commandes</h1>
+            <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                ← Retour aux achats
+            </a>
+        </div>
+
+        {% if orders|length > 0 %}
+            <div class="row">
+                {% for order in orders %}
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Commande #{{ order.orderNumber }}</h5>
+                                    <div>
+                                        <span class="badge bg-{{ order.status == 'paid' ? 'success' : (order.status == 'pending' ? 'warning' : 'info') }}">
+                                            {{ order.status|upper }}
+                                        </span>
+                                        <span class="badge bg-secondary ms-2">
+                                            {{ order.createdAt|date('d/m/Y H:i') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h6>Articles commandés :</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Livre</th>
+                                                        <th>Prix unitaire</th>
+                                                        <th>Quantité</th>
+                                                        <th>Sous-total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for orderItem in order.orderItems %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <img src="{{ asset('images/books/' ~ orderItem.book.image) }}" 
+                                                                         alt="{{ orderItem.book.title }}" 
+                                                                         style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;"
+                                                                         onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                                                                    <div>
+                                                                        <strong>{{ orderItem.book.title }}</strong><br>
+                                                                        <small class="text-muted">Par {{ orderItem.book.author }}</small>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>{{ orderItem.price|number_format(2, ',', ' ') }} $ CAD</td>
+                                                            <td>{{ orderItem.quantity }}</td>
+                                                            <td>{{ orderItem.subtotal|number_format(2, ',', ' ') }} $ CAD</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6>Résumé de la commande</h6>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span>Sous-total :</span>
+                                                    <span>{{ order.subtotal|number_format(2, ',', ' ') }} $ CAD</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span>Taxes :</span>
+                                                    <span>{{ order.tax|number_format(2, ',', ' ') }} $ CAD</span>
+                                                </div>
+                                                <hr>
+                                                <div class="d-flex justify-content-between fw-bold">
+                                                    <span>Total :</span>
+                                                    <span>{{ order.total|number_format(2, ',', ' ') }} $ CAD</span>
+                                                </div>
+                                                
+                                                {% if order.paypalTransactionId %}
+                                                    <hr>
+                                                    <small class="text-muted">
+                                                        Transaction PayPal : {{ order.paypalTransactionId }}
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <a href="{{ path('app_user_download_invoice', {'orderNumber': order.orderNumber}) }}" class="btn btn-outline-primary btn-sm w-100">
+                                                📄 Télécharger la facture
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Aucune commande trouvée</h3>
+                        <p class="text-muted">Vous n'avez pas encore passé de commande.</p>
+                        <a href="{{ path('app_home') }}" class="btn btn-primary">
+                            🛍️ Découvrir nos livres
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

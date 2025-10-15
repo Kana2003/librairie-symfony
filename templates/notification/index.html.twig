@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Notifications - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>🔔 Mes Notifications</h1>
+            {% if notifications|length > 0 %}
+                <form method="post" action="{{ path('app_notification_clear') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer toutes les notifications ?')">
+                    <button type="submit" class="btn btn-outline-danger">
+                        🗑️ Supprimer toutes
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        {% if notifications|length > 0 %}
+            <div class="row">
+                {% for notification in notifications|sort((a, b) => b.created_at <=> a.created_at) %}
+                    <div class="col-12 mb-3">
+                        <div class="card {{ notification.read ? 'border-secondary' : 'border-primary' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            {% if not notification.read %}
+                                                <span class="badge bg-primary me-2">Nouveau</span>
+                                            {% endif %}
+                                            
+                                            {% set icon = '📚' %}
+                                            {% if notification.type == 'price_increase' %}
+                                                {% set icon = '📈' %}
+                                            {% elseif notification.type == 'price_decrease' %}
+                                                {% set icon = '📉' %}
+                                            {% elseif notification.type == 'out_of_stock' %}
+                                                {% set icon = '❌' %}
+                                            {% elseif notification.type == 'low_stock' %}
+                                                {% set icon = '⚠️' %}
+                                            {% endif %}
+                                            
+                                            <span class="me-2">{{ icon }}</span>
+                                            <h6 class="card-title mb-0">{{ notification.book_title }}</h6>
+                                        </div>
+                                        
+                                        <p class="card-text">{{ notification.message }}</p>
+                                        
+                                        <small class="text-muted">
+                                            {{ notification.created_at|date('d/m/Y H:i') }}
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="ms-3">
+                                        {% if not notification.read %}
+                                            <button class="btn btn-sm btn-outline-primary mark-read-btn" 
+                                                    data-notification-id="{{ notification.id }}">
+                                                ✓ Marquer comme lu
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if notification.actions|length > 0 %}
+                                    <div class="mt-3">
+                                        {% for action in notification.actions %}
+                                            {% if action.method is defined and action.method == 'POST' %}
+                                                <form method="post" action="{{ action.url }}" style="display: inline;">
+                                                    <button type="submit" class="btn btn-sm {{ action.class }}">
+                                                        {{ action.label }}
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <a href="{{ action.url }}" class="btn btn-sm {{ action.class }}">
+                                                    {{ action.label }}
+                                                </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Aucune notification</h3>
+                        <p class="text-muted">Vous n'avez pas encore de notifications.</p>
+                        <a href="{{ path('app_home') }}" class="btn btn-primary">
+                            🛍️ Découvrir nos livres
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Marquer comme lu
+    document.querySelectorAll('.mark-read-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationId = this.dataset.notificationId;
+            const card = this.closest('.card');
+            
+            fetch(`/notifications/mark-read/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    card.classList.remove('border-primary');
+                    card.classList.add('border-secondary');
+                    this.remove();
+                    
+                    // Mettre à jour le compteur de notifications non lues
+                    updateNotificationCount();
+                }
+            });
+        });
+    });
+    
+    function updateNotificationCount() {
+        fetch('/notifications/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            });
+    }
+});
+</script>
+{% endblock %}

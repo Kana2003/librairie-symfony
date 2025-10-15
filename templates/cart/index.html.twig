@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🛒 Mon Panier</h1>
+
+        {% if cart.cartItems|length > 0 %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Livre</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Quantité</th>
+                                    <th>Sous-total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cartItem in cart.cartItems %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ asset('images/books/' ~ cartItem.book.image) }}" 
+                                                     alt="{{ cartItem.book.title }}" 
+                                                     style="width: 60px; height: 60px; object-fit: cover; margin-right: 15px;"
+                                                     onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                                                <div>
+                                                    <h6 class="mb-0">{{ cartItem.book.title }}</h6>
+                                                    <small class="text-muted">Par {{ cartItem.book.author }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ cartItem.price|number_format(2, ',', ' ') }} $ CAD</td>
+                                        <td>
+                                            <form method="post" action="{{ path('app_cart_update', {'id': cartItem.id}) }}" class="d-flex align-items-center">
+                                                <input type="number" name="quantity" value="{{ cartItem.quantity }}" min="1" max="{{ cartItem.book.stock }}" class="form-control" style="width: 80px;">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2">✓</button>
+                                            </form>
+                                        </td>
+                                        <td>{{ cartItem.subtotal|number_format(2, ',', ' ') }} $ CAD</td>
+                                        <td>
+                                            <form method="post" action="{{ path('app_cart_remove', {'id': cartItem.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
+                                                <button type="submit" class="btn btn-sm btn-danger">🗑️ Supprimer</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Résumé du panier -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Résumé de la commande</h5>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Sous-total :</span>
+                                        <span>{{ cart.total|number_format(2, ',', ' ') }} $ CAD</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Taxes (14.975%) :</span>
+                                        <span>{{ (cart.total * 0.14975)|number_format(2, ',', ' ') }} $ CAD</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total :</span>
+                                        <span>{{ cart.totalWithTax|number_format(2, ',', ' ') }} $ CAD</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <form method="post" action="{{ path('app_cart_clear') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir vider le panier ?')">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        🗑️ Vider le panier
+                                    </button>
+                                </form>
+                                <div>
+                                    <a href="{{ path('app_home') }}" class="btn btn-outline-primary me-2">
+                                        ← Continuer les achats
+                                    </a>
+                                    <a href="{{ path('app_cart_checkout') }}" class="btn btn-success">
+                                        💳 Procéder au paiement PayPal
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Votre panier est vide</h3>
+                        <p class="text-muted">Ajoutez des livres à votre panier pour commencer vos achats.</p>
+                        <a href="{{ path('app_home') }}" class="btn btn-primary">
+                            🛍️ Découvrir nos livres
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

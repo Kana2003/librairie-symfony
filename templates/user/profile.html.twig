@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>👤 Mon Profil</h3>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form_row(form.firstName, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.lastName, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    {{ form_row(form.email, {
+                        'attr': {'class': 'form-control'},
+                        'label_attr': {'class': 'form-label'}
+                    }) }}
+
+                    {{ form_row(form.phone, {
+                        'attr': {'class': 'form-control'},
+                        'label_attr': {'class': 'form-label'}
+                    }) }}
+
+                    {{ form_row(form.address, {
+                        'attr': {'class': 'form-control'},
+                        'label_attr': {'class': 'form-label'}
+                    }) }}
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form_row(form.city, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.postalCode, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.province, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Sauvegarder les modifications
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Actions rapides -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5>🔧 Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_user_reset_password') }}" class="btn btn-outline-warning">
+                        🔐 Changer le mot de passe
+                    </a>
+                    <a href="{{ path('app_user_orders') }}" class="btn btn-outline-info">
+                        📋 Mes commandes
+                    </a>
+                    <a href="{{ path('app_cart_index') }}" class="btn btn-outline-primary">
+                        🛒 Mon panier
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations du compte -->
+        <div class="card">
+            <div class="card-header">
+                <h5>ℹ️ Informations du compte</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Membre depuis :</strong><br>
+                {{ user.createdAt|date('d/m/Y') }}</p>
+                
+                <p><strong>Dernière connexion :</strong><br>
+                {% if user.lastLoginAt %}
+                    {{ user.lastLoginAt|date('d/m/Y H:i') }}
+                {% else %}
+                    Jamais connecté
+                {% endif %}</p>
+
+                <p><strong>Statut :</strong><br>
+                {% if user.isActive %}
+                    <span class="badge bg-success">Actif</span>
+                {% else %}
+                    <span class="badge bg-danger">Inactif</span>
+                {% endif %}</p>
+            </div>
+        </div>
+
+        <!-- Suppression du compte -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>⚠️ Zone dangereuse</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">La suppression de votre compte masquera vos données mais les conservera pour une éventuelle réactivation.</p>
+                <form method="post" action="{{ path('app_user_delete_account') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est réversible en contactant le support.')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        🗑️ Supprimer mon compte
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ order.orderNumber }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 24px;
+        }
+        .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .invoice-details, .customer-details {
+            width: 45%;
+        }
+        .invoice-details h3, .customer-details h3 {
+            color: #007bff;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .total-row {
+            margin: 5px 0;
+        }
+        .total-final {
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 2px solid #007bff;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 E-commerce Livres Informatiques</h1>
+        <p>Votre librairie spécialisée en informatique</p>
+    </div>
+
+    <div class="invoice-info">
+        <div class="invoice-details">
+            <h3>Informations de la facture</h3>
+            <p><strong>Numéro de commande :</strong> {{ order.orderNumber }}</p>
+            <p><strong>Date de commande :</strong> {{ order.createdAt|date('d/m/Y H:i') }}</p>
+            <p><strong>Statut :</strong> {{ order.status|upper }}</p>
+            {% if order.paypalTransactionId %}
+                <p><strong>Transaction PayPal :</strong> {{ order.paypalTransactionId }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="customer-details">
+            <h3>Informations client</h3>
+            <p><strong>Nom :</strong> {{ order.user.fullName }}</p>
+            <p><strong>Email :</strong> {{ order.user.email }}</p>
+            {% if order.user.phone %}
+                <p><strong>Téléphone :</strong> {{ order.user.phone }}</p>
+            {% endif %}
+            {% if order.user.address %}
+                <p><strong>Adresse :</strong><br>
+                {{ order.user.address }}<br>
+                {% if order.user.city %}{{ order.user.city }}{% endif %}
+                {% if order.user.postalCode %}, {{ order.user.postalCode }}{% endif %}
+                {% if order.user.province %}, {{ order.user.province }}{% endif %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h3>Articles commandés</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Livre</th>
+                <th>Auteur</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Sous-total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for orderItem in order.orderItems %}
+                <tr>
+                    <td>{{ orderItem.book.title }}</td>
+                    <td>{{ orderItem.book.author }}</td>
+                    <td>{{ orderItem.price|number_format(2, ',', ' ') }} $ CAD</td>
+                    <td>{{ orderItem.quantity }}</td>
+                    <td>{{ orderItem.subtotal|number_format(2, ',', ' ') }} $ CAD</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div class="total-row">
+            <strong>Sous-total :</strong> {{ order.subtotal|number_format(2, ',', ' ') }} $ CAD
+        </div>
+        <div class="total-row">
+            <strong>Taxes (14.975%) :</strong> {{ order.tax|number_format(2, ',', ' ') }} $ CAD
+        </div>
+        <div class="total-row total-final">
+            <strong>TOTAL :</strong> {{ order.total|number_format(2, ',', ' ') }} $ CAD
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>E-commerce Livres Informatiques</strong></p>
+        <p>Merci pour votre achat !</p>
+        <p>Pour toute question, contactez-nous à support@ecommerce-livres.com</p>
+        <p>Facture générée le {{ "now"|date('d/m/Y H:i') }}</p>
+    </div>
+</body>
+</html>

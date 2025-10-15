@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panier Invité - E-commerce Livres Informatiques{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>🛒 Panier Invité</h1>
+            {% if cartItems|length > 0 %}
+                <form method="post" action="{{ path('app_guest_cart_clear') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir vider le panier ?')">
+                    <button type="submit" class="btn btn-outline-danger">
+                        🗑️ Vider le panier
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        {% if cartItems|length > 0 %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Livre</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Quantité</th>
+                                    <th>Sous-total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cartItems %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ asset('images/books/' ~ item.book.image) }}"
+                                                     alt="{{ item.book.title }}"
+                                                     style="width: 60px; height: 60px; object-fit: cover; margin-right: 15px;"
+                                                     onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                                                <div>
+                                                    <h6 class="mb-0">{{ item.book.title }}</h6>
+                                                    <small class="text-muted">Par {{ item.book.author }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ item.book.price|number_format(2, ',', ' ') }} $ CAD</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>{{ item.subtotal|number_format(2, ',', ' ') }} $ CAD</td>
+                                        <td>
+                                            <form method="post" action="{{ path('app_guest_cart_remove', {'id': item.book.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
+                                                <button type="submit" class="btn btn-sm btn-danger">🗑️ Supprimer</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Résumé du panier -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Résumé de la commande</h5>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Sous-total :</span>
+                                        <span>{{ total|number_format(2, ',', ' ') }} $ CAD</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Taxes (14.975%) :</span>
+                                        <span>{{ (total * 0.14975)|number_format(2, ',', ' ') }} $ CAD</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total :</span>
+                                        <span>{{ totalWithTax|number_format(2, ',', ' ') }} $ CAD</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                                    ← Continuer les achats
+                                </a>
+                                <div>
+                                    <a href="{{ path('app_register') }}" class="btn btn-success me-2">
+                                        📝 Créer un compte
+                                    </a>
+                                    <a href="{{ path('app_login') }}" class="btn btn-primary">
+                                        🔐 Se connecter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information importante -->
+            <div class="alert alert-info mt-4">
+                <h6>💡 Information importante</h6>
+                <p class="mb-0">
+                    Vous êtes actuellement en mode invité. Pour finaliser votre achat et profiter de toutes nos fonctionnalités, 
+                    nous vous recommandons de <strong>créer un compte</strong> ou de <strong>vous connecter</strong> si vous en avez déjà un.
+                </p>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Votre panier invité est vide</h3>
+                        <p class="text-muted">Ajoutez des livres à votre panier pour commencer vos achats.</p>
+                        <a href="{{ path('app_home') }}" class="btn btn-primary">
+                            🛍️ Découvrir nos livres
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

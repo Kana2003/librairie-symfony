@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement - Commande #{{ order.orderNumber }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>💳 Paiement PayPal</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Résumé de la commande</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Livre</th>
+                                        <th>Quantité</th>
+                                        <th>Prix</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for orderItem in order.orderItems %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="{{ asset('images/books/' ~ orderItem.book.image) }}" 
+                                                         alt="{{ orderItem.book.title }}" 
+                                                         style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;"
+                                                         onerror="this.src='{{ asset('images/books/Illustration-ordinateur-portable-ouvert.jpg') }}'">
+                                                    <div>
+                                                        <strong>{{ orderItem.book.title }}</strong><br>
+                                                        <small class="text-muted">{{ orderItem.book.author }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ orderItem.quantity }}</td>
+                                            <td>{{ orderItem.subtotal|number_format(2, ',', ' ') }} $ CAD</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Sous-total :</span>
+                                <span>{{ order.subtotal|number_format(2, ',', ' ') }} $ CAD</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Taxes (14.975%) :</span>
+                                <span>{{ order.tax|number_format(2, ',', ' ') }} $ CAD</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total :</span>
+                                <span>{{ order.total|number_format(2, ',', ' ') }} $ CAD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5>Informations de livraison</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <p><strong>{{ order.user.fullName }}</strong></p>
+                                <p>{{ order.user.address }}</p>
+                                <p>{{ order.user.city }}, {{ order.user.province }} {{ order.user.postalCode }}</p>
+                                <p>📧 {{ order.user.email }}</p>
+                                {% if order.user.phone %}
+                                    <p>📞 {{ order.user.phone }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            <h6>🔒 Paiement sécurisé</h6>
+                            <p class="mb-0">Votre paiement sera traité de manière sécurisée par PayPal. Nous ne stockons jamais vos informations de paiement.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="text-center">
+                    <h5>Choisissez votre méthode de paiement</h5>
+                    
+                    <!-- Bouton PayPal -->
+                    <div class="mt-4">
+                        <a href="{{ payment.payment_url }}" class="btn btn-success btn-lg" style="padding: 15px 30px; font-size: 18px;">
+                            💳 Payer avec PayPal - {{ payment.amount }} {{ payment.currency }}
+                        </a>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <strong>Mode test :</strong> Vous serez redirigé vers PayPal pour finaliser votre paiement.
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{{ path('app_user_orders') }}" class="btn btn-outline-secondary">
+                            ← Retour aux commandes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
