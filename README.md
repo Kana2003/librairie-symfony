@@ -1,292 +1,246 @@
-# Projet E-commerce - Livres Informatiques
+# Librairie Symfony — Plateforme e-commerce de livres informatiques
 
-## Description du projet
+> Projet de fin de session | DEC Techniques de l'informatique | Institut Teccart, Montréal
 
-Ce projet est un site e-commerce développé en Symfony pour la vente de livres informatiques. Il respecte les consignes du TP2 et du Projet Final de Programmation Web - Été 2025.
+![Symfony](https://img.shields.io/badge/Symfony-7.3-black?logo=symfony)
+![PHP](https://img.shields.io/badge/PHP-8.2+-8892BF?logo=php)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)
 
-## 🚀 Test du site
+Application web e-commerce permettant la vente de livres informatiques avec authentification, panier, paiement PayPal (sandbox), taxes québécoises et back-office administrateur.
 
-### Accès au site
+---
 
--   **URL locale** : http://localhost:8000
--   **Serveur de développement** : Démarrez avec `php -S localhost:8000 -t public`
+## Aperçu
 
-### Comptes de test
+| Page | Capture |
+|------|---------|
+| Accueil — catalogue | ![Accueil](docs/screenshots/01-accueil.png) |
+| Détail d'un livre | ![Détail livre](docs/screenshots/02-detail-livre.png) |
+| Panier | ![Panier](docs/screenshots/03-panier.png) |
+| Paiement PayPal | ![Paiement](docs/screenshots/04-paiement.png) |
+| Historique des commandes | ![Commandes](docs/screenshots/05-mes-commandes.png) |
+| Back-office admin | ![Admin](docs/screenshots/06-admin.png) |
 
--   **Administrateur** :
-    -   Email : `admin@ecommerce.com`
-    -   Mot de passe : `admin123`
-    -   Accès : Gestion des livres, toutes les fonctionnalités admin
+> Captures d'écran de l'application en environnement local.
 
-### Fonctionnalités testées
+---
 
-✅ **Page d'accueil** : Affichage des 22 livres avec images  
-✅ **Recherche** : Recherche par titre, auteur, description  
-✅ **Connexion/Inscription** : Formulaires fonctionnels  
-✅ **Gestion des livres** : CRUD complet pour les administrateurs  
-✅ **Panier** : Ajout, modification, suppression d'articles  
-✅ **Images** : Utilisation des images fournies dans `Livres-Informatiques`  
-✅ **Base de données** : Connexion MySQL et données chargées
+## Fonctionnalités
 
-## Fonctionnalités principales
+### Catalogue et recherche
+- Affichage de tous les livres avec titre, auteur, prix TTC et statut de stock
+- Recherche par titre, auteur ou description (HomeController)
+- Statut automatique : « En stock », « Seulement N en stock », « En rupture de stock »
 
-### Pour les utilisateurs (clients)
+### Authentification
+- Inscription et connexion par email / mot de passe
+- Connexion alternative par **code OTP envoyé par email** (flux indépendant, 6 chiffres, expiration 10 min)
+- Déconnexion automatique après **2 minutes d'inactivité** (SessionTimeoutListener)
+- Suppression de compte (soft delete — isDeleted / isActive)
 
--   Inscription et connexion avec authentification
--   Recherche de livres informatiques
--   Ajout de livres au panier
--   Gestion du panier (modification des quantités, suppression)
--   Achat direct ou via panier
--   Paiement via PayPal
--   Historique des commandes
--   Gestion du profil utilisateur
--   Déconnexion automatique après 2 minutes d'inactivité
+### Panier
+- Panier par utilisateur connecté (un panier actif par compte)
+- Ajout, modification de quantité, suppression d'articles, vidage complet
+- **Panier invité** : ajout possible avant connexion (stockage en session)
+- Calcul des sous-totaux et du total TTC en temps réel
 
-### Pour les administrateurs
+### Commandes et paiement
+- Conversion du panier en commande lors du checkout
+- Intégration **PayPal sandbox** : génération d'une URL de paiement directe (`_xclick`, devise CAD)  
+  *(Note : les credentials sont des valeurs de test ; le succès est confirmé localement sans vérification IPN)*
+- Statuts de commande : `pending` → `paid` → `delivered`
+- Historique des commandes accessible depuis le profil
+- **Téléchargement de facture PDF** par commande (DomPDF)
 
--   Gestion complète des livres (ajout, modification, suppression)
--   Recherche de livres
--   Gestion des stocks
--   Visualisation des commandes
+### Taxes québécoises
+- TPS : 5 % | TVQ : 9,975 % | **Total : 14,975 %**
+- Calculées automatiquement dans les entités Book, CartItem, OrderItem et Order
 
-## Technologies utilisées
+### Profil utilisateur
+- Modification des informations personnelles (téléphone, adresse, ville, code postal, province)
+- Changement de mot de passe (vérification de l'ancien)
 
--   **Backend**: Symfony 7.x, PHP 8.x
--   **Base de données**: MySQL
--   **Frontend**: Bootstrap 5, Twig
--   **Paiement**: PayPal
--   **Email**: Mailtrap.io pour les tests OTP
+### Back-office administrateur (ROLE_ADMIN)
+- **CRUD complet des livres** : création, lecture, modification, suppression
+- Upload d'image de couverture
+- Recherche dans le catalogue
+- Mise à jour automatique du stock lors d'une modification (événement `BookUpdateEvent`)
+- Notifications aux utilisateurs dont les livres sont dans le panier si le prix ou le stock change
 
-## Installation et configuration
+---
+
+## Stack technique
+
+| Composant | Version |
+|-----------|---------|
+| PHP | >= 8.2 |
+| Symfony | 7.3.* |
+| Doctrine ORM | ^3.5 |
+| Doctrine DBAL | ^3 |
+| DomPDF | ^3.1 |
+| Symfony Mailer | 7.3.* |
+| PHPUnit | ^11.5 |
+| Bootstrap | ^5.3.7 |
+| Webpack Encore | ^5.0.0 |
+| Node.js | >= 18 (pour la compilation des assets) |
+| Base de données | MySQL 8.0 |
+
+---
+
+## Installation
 
 ### Prérequis
 
--   PHP 8.1 ou supérieur
--   Composer
--   MySQL
--   Node.js et npm
+- PHP >= 8.2 avec extensions `ctype`, `iconv`
+- Composer
+- MySQL 8.0
+- Node.js >= 18 et npm
+- Serveur local (XAMPP, Laragon, Symfony CLI…)
 
-### Étapes d'installation
+### Étapes
 
-1. **Cloner le projet**
+**1. Cloner le dépôt**
 
 ```bash
-git clone [url-du-repo]
-cd ecommerce
+git clone https://github.com/kana-di/librairie-symfony.git
+cd librairie-symfony
 ```
 
-2. **Installer les dépendances PHP**
+**2. Installer les dépendances PHP**
 
 ```bash
 composer install
 ```
 
-3. **Installer les dépendances JavaScript**
+**3. Configurer l'environnement**
+
+```bash
+cp .env .env.local
+```
+
+Éditer `.env.local` :
+
+```dotenv
+# Base de données
+DATABASE_URL="mysql://root:@127.0.0.1:3306/librairie_symfony?serverVersion=8.0"
+
+# Email (Mailtrap pour les tests OTP)
+MAILER_DSN=smtp://username:password@sandbox.smtp.mailtrap.io:2525
+```
+
+**4. Créer la base de données et exécuter les migrations**
+
+```bash
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+```
+
+**5. Charger les données de démonstration**
+
+```bash
+# Charger le catalogue de livres
+php bin/console app:load-books
+
+# Créer le compte administrateur
+php bin/console app:create-admin
+```
+
+**6. Compiler les assets CSS/JS**
 
 ```bash
 npm install
-```
-
-4. **Configurer la base de données**
-
-```bash
-# Créer la base de données
-php bin/console doctrine:database:create
-
-# Créer les migrations
-php bin/console make:migration
-
-# Exécuter les migrations
-php bin/console doctrine:migrations:migrate
-```
-
-5. **Compiler les assets**
-
-```bash
 npm run dev
 ```
 
-6. **Configurer les paramètres**
-
--   Copier le fichier `.env.local` depuis `.env`
--   Configurer les paramètres de base de données
--   Configurer les paramètres PayPal
--   Configurer les paramètres Mailtrap.io
-
-7. **Charger les données initiales**
+**7. Démarrer le serveur**
 
 ```bash
-# Charger les livres
-php bin/console app:load-books
+# Avec le CLI Symfony (recommandé)
+symfony server:start
 
-# Créer un administrateur
-php bin/console app:create-admin
-```
-
-8. **Démarrer le serveur**
-
-```bash
+# Ou avec PHP
 php -S localhost:8000 -t public
 ```
 
-## Structure du projet
+Ouvrir [http://localhost:8000](http://localhost:8000)
 
-### Entités principales
+---
 
--   `User`: Utilisateurs du système
--   `Book`: Livres informatiques
--   `Cart`: Panier d'achat
--   `CartItem`: Éléments du panier
--   `Order`: Commandes
--   `OrderItem`: Éléments de commande
+## Comptes de test
 
-### Contrôleurs
+Le compte administrateur est créé automatiquement par la commande
+`php bin/console app:create-admin` lors de l'installation. Les identifiants
+sont à configurer dans cette commande (`src/Command/CreateAdminCommand.php`)
+ou directement en base de données.
 
--   `HomeController`: Page d'accueil et recherche
--   `SecurityController`: Authentification et inscription
--   `AdminBookController`: Gestion des livres (admin)
--   `CartController`: Gestion du panier
--   `OrderController`: Gestion des commandes
--   `UserController`: Gestion du profil utilisateur
+Pour créer un compte utilisateur standard, utiliser le formulaire d'inscription
+sur `/register`. La connexion OTP fonctionne avec n'importe quel compte actif
+si un serveur SMTP est configuré (Mailtrap recommandé pour le développement).
 
-### Formulaires
+---
 
--   `UserRegistrationType`: Inscription utilisateur
--   `LoginFormType`: Connexion
--   `BookType`: Gestion des livres
--   `UserProfileType`: Modification du profil
+## Architecture
 
-## Commandes Symfony utilisées
+### Entités (src/Entity/)
 
-### Création du projet
+| Entité | Rôle principal |
+|--------|----------------|
+| `User` | Compte utilisateur, rôles, soft delete |
+| `Book` | Livre avec prix, stock, statut automatique |
+| `Cart` | Panier actif par utilisateur |
+| `CartItem` | Ligne de panier (livre + quantité + prix) |
+| `Order` | Commande avec numéro unique, statut et total TTC |
+| `OrderItem` | Ligne de commande (snapshot du prix au moment de l'achat) |
 
-```bash
-composer create-project symfony/skeleton ecommerce
-cd ecommerce
-composer require webapp
-```
+### Contrôleurs (src/Controller/)
 
-### Installation des packages
+| Contrôleur | Routes | Accès |
+|-----------|--------|-------|
+| `HomeController` | `GET /` | Public |
+| `SecurityController` | `/login`, `/register`, `/logout` | Public |
+| `TwoFactorController` | `/2fa/request`, `/2fa/verify`, `/2fa/resend` | Public |
+| `CartController` | `/cart/*` | ROLE_USER |
+| `PaymentController` | `/payment/*` | ROLE_USER |
+| `UserController` | `/user/profile`, `/user/orders`, `/user/download-invoice/{orderNumber}` | ROLE_USER |
+| `DirectPurchaseController` | `/buy/*`, `/guest-cart/*` | Public / ROLE_USER |
+| `AdminBookController` | `/admin/book/*` | ROLE_ADMIN |
+| `NotificationController` | `/notifications/*` | ROLE_USER |
 
-```bash
-composer require dompdf/dompdf
-composer require symfony/webpack-encore-bundle
-```
+### Services (src/Service/)
 
-### Création des entités
+| Service | Rôle |
+|---------|------|
+| `OtpService` | Génération et envoi d'OTP par email |
+| `PayPalService` | Création d'URL de paiement PayPal sandbox |
+| `PdfService` | Génération de factures PDF avec DomPDF |
+| `NotificationService` | Notifications en session pour les utilisateurs |
 
-```bash
-php bin/console make:user
-php bin/console make:entity Book
-php bin/console make:entity Cart
-php bin/console make:entity CartItem
-php bin/console make:entity Order
-php bin/console make:entity OrderItem
-```
+---
 
-### Création des formulaires
+## Ce que ce projet m'a appris
 
-```bash
-php bin/console make:form UserRegistrationType User
-php bin/console make:form LoginFormType
-php bin/console make:form BookType Book
-php bin/console make:form UserProfileType User
-```
+- **Architecture Symfony MVC** : séparation contrôleurs / services / entités, injection de dépendances
+- **Doctrine ORM** : modélisation relationnelle, migrations, requêtes personnalisées avec QueryBuilder
+- **Sécurité Symfony** : firewalls, voters, `IsGranted`, hachage de mots de passe, CSRF
+- **Système d'événements** : `EventDispatcher`, création d'événements personnalisés (`BookUpdateEvent`) et listeners
+- **Envoi d'emails** : Symfony Mailer, templates Twig pour les emails HTML
+- **Génération de PDF** : intégration de DomPDF dans un service Symfony
+- **Frontend** : Webpack Encore, Bootstrap 5, templates Twig avec héritage
+- **Flux de paiement** : modélisation d'un cycle commande → paiement → confirmation
+- **Taxes** : application des règles fiscales québécoises (TPS + TVQ) à tous les niveaux du modèle
+- **Soft delete** : désactivation logique des comptes sans suppression physique
 
-### Création des contrôleurs
-
-```bash
-php bin/console make:controller HomeController
-php bin/console make:controller SecurityController
-php bin/console make:controller AdminBookController
-php bin/console make:controller CartController
-```
-
-### Configuration de la base de données
-
-```bash
-php bin/console doctrine:database:create
-php bin/console make:migration
-php bin/console doctrine:migrations:migrate
-```
-
-### Installation de Bootstrap
-
-```bash
-npm install bootstrap @popperjs/core
-npm run dev
-```
-
-### Commandes personnalisées
-
-```bash
-# Charger les livres dans la base de données
-php bin/console app:load-books
-
-# Créer un administrateur
-php bin/console app:create-admin
-```
-
-## Configuration de la sécurité
-
-### Firewall
-
-Le système utilise le firewall Symfony avec les routes suivantes :
-
--   `/login`: Page de connexion
--   `/register`: Page d'inscription
--   `/admin/*`: Zone administrateur (ROLE_ADMIN)
--   `/cart/*`: Zone panier (ROLE_USER)
-
-### Authentification
-
--   Authentification par email/mot de passe
--   Hachage des mots de passe avec bcrypt
--   Session avec timeout de 2 minutes
-
-## Fonctionnalités avancées
-
-### Gestion des stocks
-
--   Mise à jour automatique du statut des livres
--   Vérification de disponibilité lors de l'ajout au panier
--   Gestion des conflits d'achat simultané
-
-### Taxes
-
--   Calcul automatique des taxes du Québec (GST 5% + QST 9.975%)
--   Affichage des prix avec et sans taxes
-
-### Responsive Design
-
--   Interface adaptative avec Bootstrap 5
--   Compatible mobile et desktop
-
-### Images des livres
-
--   Utilisation des images fournies dans le dossier `Livres-Informatiques`
--   Gestion des erreurs d'affichage avec image de fallback
--   Optimisation des images pour le web
-
-## Tests
-
-Pour exécuter les tests :
-
-```bash
-php bin/phpunit
-```
-
-## Déploiement
-
-1. Configurer l'environnement de production
-2. Optimiser les assets : `npm run build`
-3. Vider le cache : `php bin/console cache:clear --env=prod`
-4. Configurer le serveur web (Apache/Nginx)
+---
 
 ## Auteur
 
-Thierno Oumar Kana Diallo -
+**Kana Diallo**  
+Étudiant — DEC Techniques de l'informatique  
+Institut Teccart, Montréal  
+[kanadiallo20@gmail.com](mailto:kanadiallo20@gmail.com)  
+[github.com/kana-di](https://github.com/kana-di)
 
-## Licence
+---
 
-Ce projet est développé dans le cadre du cours de Programmation Web - CE2.
+*Projet académique réalisé dans le cadre du DEC en Techniques de l'informatique à l'Institut Teccart (Montréal).*
